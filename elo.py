@@ -1,23 +1,41 @@
 import requests
 from bs4 import BeautifulSoup
+import re
 from datetime import datetime
 
-URL = "https://ada1bank.mlsz.hu/club?evad=52&szervezet=10&verseny=20871&teamId=195684"
+HEOL_URL = "https://www.heol.hu/helyi-sport/2026/10/gyongyosi-ak-16-eves-golszerzoje-reven-vitt-pontot"
 headers = {"User-Agent": "Mozilla/5.0 LorinciVSC/1.0"}
 
-print(f"Lehuzas: {URL}")
-r = requests.get(URL, headers=headers, timeout=20)
-soup = BeautifulSoup(r.text, 'lxml')
+def ai_szalagcim(eredmeny, gollovok, idegenben=False):
+    if "3-1" in eredmeny or "4-1" in eredmeny:
+        return "MAGABIZTOS GYŐZELEM"
+    if idegenben and "1-2" in eredmeny:
+        return "GYŐZELEM IDEGENBEN"
+    if "88'" in gollovok or "90'" in gollovok:
+        return "DRÁMAI VÉGJÁTÉKKAL NYERT A LŐRINCI"
+    return "GYŐZELEM A VÁRMEGYEI I. OSZTÁLYBAN"
 
-lorinci_row = ""
-for tr in soup.find_all('tr'):
-    if 'Lőrinci VSC' in tr.get_text():
-        lorinci_row = tr.get_text(separator='|', strip=True)
-        break
+try:
+    print(f"HEOL: {HEOL_URL}")
+    r = requests.get(HEOL_URL, headers=headers, timeout=20)
+    soup = BeautifulSoup(r.text, 'lxml')
+    text = soup.get_text(separator='\n')
+    
+    eredmeny = re.search(r'\d+\s*-\s*\d+', text)
+    eredmeny = eredmeny.group(0) if eredmeny else ""
+    
+    gollovok = re.findall(r"\d+'\s+[A-ZÁÉÍÓÖŐÚÜŰa-záéíóöőúüű\s]+\(\d+-\d+\)", text)
+    gollovok_text = ", ".join(gollovok)
 
-now = datetime.now().strftime("%Y.%m.%d %H:%M")
-js_content = f'// Auto frissitve MLSZ-rol: {now}\nconst csapatAdat = {{frissitve: "{now}", adat: "{lorinci_row}"}};\n'
+    szalagcim = ai_szalagcim(eredmeny, gollovok_text, True)
+    
+    print(f"Eredmeny: {eredmeny} | Szalagcim AI: {szalagcim}")
+    
+    # Nem írjuk felül az egészet, csak logoljuk - a többit majd bővítjük
+    with open("heol_adat.json", "w", encoding="utf-8") as f:
+        import json
+        json.dump({"szalagcim": szalagcim, "eredmeny": eredmeny, "gollovok": gollovok_text, "forras": HEOL_URL}, f, ensure_ascii=False, indent=2)
 
-with open("adat.js", "w", encoding="utf-8") as f:
-    f.write(js_content)
-print("adat.js OK")
+except Exception as e:
+    print(f"HIBA: {e}")
+    raise e
