@@ -3,7 +3,7 @@ from bs4 import BeautifulSoup
 from datetime import datetime
 
 URL = "https://ada1bank.mlsz.hu/club?evad=52&szervezet=10&verseny=20871&teamId=195684"
-headers = {"User-Agent": "Mozilla/5.0 LőrinciVSC/1.0"}
+headers = {"User-Agent": "Mozilla/5.0 LorinciVSC/1.0"}
 
 print(f"Lehuzas: {URL}")
 r = requests.get(URL, headers=headers, timeout=20)
