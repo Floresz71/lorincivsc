@@ -1,66 +1,24 @@
-import requests
-from bs4 import BeautifulSoup
-import json
-from datetime import datetime
+name: MLSZ Auto Frissites
+on:
+  schedule:
+    - cron: '0 * * * *'
+  workflow_dispatch:
 
-# EZ AZ MLSZ OLDALAD - ha változik a szezon, itt kell átírni az evad= számot
-URL = "https://ada1bank.mlsz.hu/club?evad=52&szervezet=10&verseny=20871&teamId=195684"
-
-print(f"Lehuzas: {URL}")
-
-headers = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) LőrinciVSC/1.0"
-}
-
-try:
-    r = requests.get(URL, headers=headers, timeout=20)
-    r.raise_for_status()
-    soup = BeautifulSoup(r.text, 'lxml')
-    
-    # Itt keressük a táblázatot - a Lőrinci VSC sorát
-    # Ez egy egyszerű példa, ami a pontokat, meccseket szedi
-    # A teljes meccslista egy másik oldalon van, ezt bővítjük ha kell
-    
-    # Példa: kiszedjük az összes szöveget és elmentjük nyersnek
-    # TE itt fogod látni mit talált, és finomítjuk
-    
-    # Most egyelőre írjunk egy adat.js-t az aktuális dátummal, hogy lásd működik a robot
-    now = datetime.now().strftime("%Y.%m.%d %H:%M")
-    
-    # Próbáljuk meg kitalálni a tabellából a Lőrinci adatot
-    lorinci_row = None
-    for tr in soup.find_all('tr'):
-        if 'Lőrinci VSC' in tr.get_text():
-            lorinci_row = tr.get_text(separator='|', strip=True)
-            break
-    
-    print(f"Talalt sor: {lorinci_row}")
-
-    # Ide írd be a saját adat.js formátumod szerint!
-    # Ez egy MINTA, ami biztosan működik:
-    js_content = f"""
-// Auto frissitve MLSZ-rol: {now}
-// Forras: {URL}
-// Nyers sor: {lorinci_row}
-
-const csapatAdat = {{
-    frissitve: "{now}",
-    csapat: "Lőrinci VSC",
-    nyers_adat: "{lorinci_row}"
-}};
-
-// Ha van régi adat.js-ed, itt kell majd beilleszteni a tabella/gollovo logikat
-console.log("MLSZ adat frissitve:", csapatAdat);
-"""
-
-    # Ha már van adat.js-ed ami jól néz ki, ezt a részt kell majd bővíteni
-    # Most felülírjuk, hogy lásd a robot működik
-    with open("adat.js", "w", encoding="utf-8") as f:
-        f.write(js_content)
-    
-    print("adat.js sikeresen frissitve!")
-
-except Exception as e:
-    print(f"HIBA: {e}")
-    # Ha hiba van, ne törjük el a régi adat.js-t
-    raise e
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      - run: pip install requests beautifulsoup4 lxml
+      - run: python elo.py
+      - run: |
+          git config --global user.name 'LVSC Bot'
+          git config --global user.email 'bot@lorincivsc.hu'
+          git add adat.js
+          git diff --staged --quiet || git commit -m "MLSZ auto frissites"
+          git push
