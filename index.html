@@ -120,7 +120,8 @@
       if(sd.sarga&&sd.sarga.length) L.push("Sárga lapok - "+sd.nev+": "+sd.sarga.map(function(c){return c[0]+" ("+c[1]+"')";}).join(", "));
       if(sd.piros&&sd.piros.length) L.push("Piros lap - "+sd.nev+": "+sd.piros.map(function(c){return c[0]+" ("+c[1]+"')";}).join(", "));
     });
-    L.push("Vezetőedzők: "+l.edzo+" ("+l.nev+") • "+e.edzo+" ("+e.nev+")");
+    var ed=[]; if(l.edzo) ed.push(l.edzo+" ("+l.nev+")"); if(e.edzo) ed.push(e.edzo+" ("+e.nev+")");
+    if(ed.length) L.push("Vezetőedző"+(ed.length>1?"k":"")+": "+ed.join(" • "));
     [l,e].forEach(function(sd){ if(sd.stab&&sd.stab.length) L.push("Stáb - "+sd.nev+": "+sd.stab.join(" | ")); });
     L.push("MLSZ jegyzőkönyv: "+x.link);
     return L;
@@ -235,7 +236,7 @@
       +'<div style="font-weight:900;font-size:11px;line-height:1;letter-spacing:.18em;color:#ffcc00;margin-bottom:14px">EDZŐI ÉRTÉKELÉSEK'+(par?' • HEOL NYOMÁN':'')+'</div>';
     (v.edzok||[]).forEach(function(e,i){
       h+='<div style="'+(i?'margin-top:16px;padding-top:16px;border-top:1px solid rgba(255,255,255,.15);':'')+(i===0?'border-left:3px solid #ffcc00;padding-left:12px;':'padding-left:15px;')+'">'
-        +'<div style="font-weight:900;font-size:14px;line-height:1.3">'+esc(e.nev)+' <span style="font-weight:700;opacity:.65;font-size:12px">– '+esc(e.csapat)+' vezetőedzője</span></div>';
+        +'<div style="font-weight:900;font-size:14px;line-height:1.3">'+esc((e.t&&e.t.nev)||e.nev)+' <span style="font-weight:700;opacity:.65;font-size:12px">– '+esc(e.csapat)+' '+esc((e.t&&e.t.szerep)||"vezetőedzője")+'</span></div>';
       if(e.t){
         var txt = e.t.idezet ? '„'+esc(e.t.idezet)+'”' : esc(e.t.osszefoglalo);
         h+='<div style="margin-top:8px;font-style:italic;font-size:13.5px;line-height:1.6;color:rgba(255,255,255,.88)">'+txt+'</div>';
@@ -628,7 +629,13 @@
       if(j.jv) it.excerpt += " Játékvezető: "+j.jv+".";
     });
     var ids = items.map(function(n){return n.id;});
-    return b.filter(function(n){return ids.indexOf(n.id)<0;}).concat(items);
+    var J=window.JKV||{};
+    return b.filter(function(n){
+      if(ids.indexOf(n.id)>=0) return false;
+      if(n.id===1 && J[7]) return false;   // régi 7. fordulós hír
+      if(n.id===5 && J[8]) return false;   // régi 8. fordulós hír
+      return true;
+    }).concat(items);
   };
 
   // --- Menetrend: lejátszott felnőtt meccsek kikerülnek a jövőbeliek közül ---
@@ -650,7 +657,7 @@
     if(!S.length) return b;
     var add = S.map(function(x){
       var q=sc(x), p=LV.past[x.fordulo]||{}, lab=q.l>q.e?"GY":q.l<q.e?"V":"D";
-      return { id:String(x.datum).replace(/\D/g,""), date:x.datum, time:p.time||"", fullMatch:String(x.fejlec||"").replace(/\s+\d+\s*-\s*\d+\s+/," - "), opponent:x.ellenfel_nev,
+      return { id:String(x.datum).replace(/\D/g,""), date:x.datum, time:p.time||(window.JKV&&window.JKV[x.fordulo]&&window.JKV[x.fordulo].ido)||"", fullMatch:String(x.fejlec||"").replace(/\s+\d+\s*-\s*\d+\s+/," - "), opponent:x.ellenfel_nev,
         result:x.eredmeny, scoreLabel:x.eredmeny+" "+lab, round:x.fordulo+". forduló", league:"Heves Vármegyei I.",
         venue:x.helyszin, address:p.address||x.helyszin, goalsSummary:x.gollovok, hasDetailedReport:true,
         newsId:100+x.fordulo, competitionType:"BAJNOKI" };

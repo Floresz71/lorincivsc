@@ -1,7 +1,47 @@
-// Az update.py írja, kézzel is szerkeszthető.
+// Felnőtt eredmények és tabella (MLSZ adatbank alapján). Kézzel szerkesztendő – nincs automatikus frissítés.
+// Új forduló után: "elozo" := a régi "utolso"; "utolso" := az új meccs; a "tabla" az új állás. Utána tölts fel a GitHubra.
 window.ADAT = {
- "frissitve": "2026-10-24 (MLSZ adatbank 11. forduló, hivatalos tabella és jegyzőkönyv alapján)",
+ "frissitve": "2026-10-31 (MLSZ adatbank 12. forduló, hivatalos tabella és jegyzőkönyv alapján)",
  "utolso": {
+  "fordulo": 12,
+  "datum": "2026.10.31",
+  "hazai": false,
+  "eredmeny": "2-2",
+  "ellenfel": "EGER SE II.",
+  "ellenfel_nev": "Eger SE II.",
+  "alcim": "EGER SE II. 2-2 LŐRINCI VSC",
+  "fejlec": "Eger SE II. 2-2 Lőrinci VSC",
+  "helyszin": "Eger Szentmarjay Tibor Városi Stadion",
+  "golok": [
+   {
+    "perc": 34,
+    "jatekos": "Ács Ádám",
+    "csapat": "Lőrinci VSC",
+    "allas": "0-1"
+   },
+   {
+    "perc": 43,
+    "jatekos": "Demeter Buda János",
+    "csapat": "Eger SE II.",
+    "allas": "1-1"
+   },
+   {
+    "perc": 44,
+    "jatekos": "Ács Ádám",
+    "csapat": "Lőrinci VSC",
+    "allas": "1-2"
+   },
+   {
+    "perc": 76,
+    "jatekos": "Országh András László",
+    "csapat": "Eger SE II.",
+    "allas": "2-2"
+   }
+  ],
+  "gollovok": "34' Ács Ádám (0-1), 43' Demeter Buda János (1-1, Eger SE II.), 44' Ács Ádám (1-2), 76' Országh András László (2-2, Eger SE II.)",
+  "link": "https://adatbank.mlsz.hu/match/67/10/33860/12/2191314.html"
+ },
+ "elozo": {
   "fordulo": 11,
   "datum": "2026.10.24",
   "hazai": false,
@@ -34,130 +74,91 @@ window.ADAT = {
   "gollovok": "82' Szécsényi Ádám (0-1), 88' Szeles Patrik (0-2), 90' Szabó Tamás (1-2, Besenyőtelek SC)",
   "link": "https://adatbank.mlsz.hu/match/67/10/33860/11/2191310.html"
  },
- "elozo": {
-  "fordulo": 10,
-  "datum": "2026.10.17",
-  "hazai": true,
-  "eredmeny": "3-1",
-  "ellenfel": "GYÖNGYÖSI AK",
-  "ellenfel_nev": "Gyöngyösi AK",
-  "alcim": "LŐRINCI VSC 3-1 GYÖNGYÖSI AK",
-  "fejlec": "Lőrinci VSC 3-1 Gyöngyösi AK",
-  "helyszin": "Lőrinci Sporttelep",
-  "golok": [
-   {
-    "perc": 55,
-    "jatekos": "Molnár Erik József",
-    "csapat": "Lőrinci VSC",
-    "allas": "1-0"
-   },
-   {
-    "perc": 70,
-    "jatekos": "Fodor Flórián",
-    "csapat": "Lőrinci VSC",
-    "allas": "2-0"
-   },
-   {
-    "perc": 71,
-    "jatekos": "Szűcs Balázs",
-    "csapat": "Gyöngyösi AK",
-    "allas": "2-1"
-   },
-   {
-    "perc": 75,
-    "jatekos": "Oláh Norbert",
-    "csapat": "Lőrinci VSC",
-    "allas": "3-1"
-   }
-  ],
-  "gollovok": "55' Molnár Erik József (1-0), 70' Fodor Flórián (2-0), 71' Szűcs Balázs (2-1, Gyöngyösi AK), 75' Oláh Norbert (3-1)",
-  "link": "https://adatbank.mlsz.hu/match/67/10/33860/10/2191301.html"
- },
  "tabla": {
-  "fordulo": 11,
-  "eredmeny": "1-2",
+  "fordulo": 12,
+  "eredmeny": "2-2",
   "sorok": [
    {
     "pos": 1,
     "team": "Maklár SE",
-    "m": 11,
-    "gy": 7,
+    "m": 12,
+    "gy": 8,
     "d": 3,
     "v": 1,
-    "g": "28-13",
-    "p": 24,
+    "g": "31-13",
+    "p": 27,
     "forma": [
      "GY",
-     "GY",
      "D",
      "D",
-     "V"
+     "V",
+     "GY"
     ]
    },
    {
     "pos": 2,
-    "team": "Marshall-ASE",
+    "team": "FC Hatvan",
     "m": 11,
-    "gy": 7,
-    "d": 2,
+    "gy": 8,
+    "d": 1,
     "v": 2,
-    "g": "31-12",
-    "p": 23,
+    "g": "53-14",
+    "p": 25,
     "forma": [
      "GY",
      "GY",
      "GY",
-     "D",
+     "GY",
      "GY"
     ]
    },
    {
     "pos": 3,
-    "team": "Lőrinci VSC",
-    "m": 11,
+    "team": "Marshall-ASE",
+    "m": 12,
     "gy": 7,
-    "d": 2,
+    "d": 3,
     "v": 2,
-    "g": "25-16",
-    "p": 23,
-    "highlight": true,
+    "g": "32-13",
+    "p": 24,
     "forma": [
      "GY",
-     "V",
+     "GY",
      "D",
      "GY",
-     "GY"
+     "D"
     ]
    },
    {
     "pos": 4,
-    "team": "FC Hatvan",
-    "m": 10,
+    "team": "Lőrinci VSC",
+    "m": 12,
     "gy": 7,
-    "d": 1,
+    "d": 3,
     "v": 2,
-    "g": "46-12",
-    "p": 22,
+    "g": "27-18",
+    "p": 24,
+    "highlight": true,
     "forma": [
      "V",
+     "D",
      "GY",
      "GY",
-     "GY",
-     "GY"
+     "D"
     ]
    },
    {
     "pos": 5,
-    "team": "Gyöngyösi AK",
-    "m": 11,
-    "gy": 6,
-    "d": 4,
-    "v": 1,
-    "g": "18-8",
-    "p": 22,
+    "team": "Gyöngyöshalász SE",
+    "m": 12,
+    "gy": 7,
+    "d": 2,
+    "v": 3,
+    "g": "26-15",
+    "p": 23,
     "forma": [
-     "D",
-     "D",
+     "GY",
+     "V",
      "GY",
      "V",
      "GY"
@@ -165,101 +166,101 @@ window.ADAT = {
    },
    {
     "pos": 6,
-    "team": "Gyöngyöshalász SE",
-    "m": 11,
+    "team": "Gyöngyösi AK",
+    "m": 12,
     "gy": 6,
-    "d": 2,
-    "v": 3,
-    "g": "23-14",
-    "p": 20,
+    "d": 5,
+    "v": 1,
+    "g": "19-9",
+    "p": 23,
     "forma": [
-     "GY",
+     "D",
      "GY",
      "V",
      "GY",
-     "V"
+     "D"
     ]
    },
    {
     "pos": 7,
     "team": "Egerszalók SE",
-    "m": 11,
-    "gy": 3,
+    "m": 12,
+    "gy": 4,
     "d": 4,
     "v": 4,
-    "g": "18-24",
-    "p": 13,
+    "g": "21-24",
+    "p": 16,
     "forma": [
-     "V",
      "D",
      "GY",
      "GY",
-     "V"
+     "V",
+     "GY"
     ]
    },
    {
     "pos": 8,
     "team": "Bélkő SE-Bélapátfalva",
-    "m": 11,
+    "m": 12,
     "gy": 3,
     "d": 2,
-    "v": 6,
-    "g": "21-36",
+    "v": 7,
+    "g": "22-39",
     "p": 11,
     "forma": [
-     "D",
      "GY",
      "GY",
      "V",
-     "GY"
+     "GY",
+     "V"
     ]
    },
    {
     "pos": 9,
     "team": "Energia SC Gyöngyös",
-    "m": 11,
+    "m": 12,
     "gy": 3,
     "d": 1,
-    "v": 7,
-    "g": "21-28",
+    "v": 8,
+    "g": "23-35",
     "p": 9,
     "forma": [
      "V",
      "V",
-     "V",
      "GY",
-     "GY"
+     "GY",
+     "V"
     ],
     "megjegyzes": "Büntetőpont: -1"
    },
    {
     "pos": 10,
-    "team": "Heréd-Kistigrisek LC",
-    "m": 11,
+    "team": "Eger SE II.",
+    "m": 12,
     "gy": 2,
     "d": 2,
-    "v": 7,
-    "g": "18-40",
+    "v": 8,
+    "g": "12-30",
     "p": 8,
     "forma": [
-     "D",
      "V",
      "V",
      "V",
-     "V"
+     "V",
+     "D"
     ]
    },
    {
     "pos": 11,
-    "team": "Eger SE II.",
-    "m": 11,
+    "team": "Heréd-Kistigrisek LC",
+    "m": 12,
     "gy": 2,
-    "d": 1,
+    "d": 2,
     "v": 8,
-    "g": "10-28",
-    "p": 7,
+    "g": "18-43",
+    "p": 8,
     "forma": [
-     "D",
+     "V",
      "V",
      "V",
      "V",
@@ -269,11 +270,11 @@ window.ADAT = {
    {
     "pos": 12,
     "team": "Besenyőtelek SC",
-    "m": 10,
+    "m": 11,
     "gy": 0,
     "d": 0,
-    "v": 10,
-    "g": "9-37",
+    "v": 11,
+    "g": "9-40",
     "p": 0,
     "forma": [
      "V",
