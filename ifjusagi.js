@@ -1,20 +1,6 @@
 // Ifjúsági eredmények és tabellák a Hírek és a Csapat oldalhoz (U21, U16, U13).
 // Ezt a fájlt kell frissíteni, ha új eredmény van – az oldal percenként újra beolvassa, és ha változott, újratölt.
 //
-// ===== window.IFJ – meccsek korosztályonként =====
-// Soronként egy meccs. Mezők:
-//   datum      – a meccs napja (ÉÉÉÉ.HH.NN)
-//   ido        – kezdés (ÓÓ:PP), a jövőbeli meccsek visszaszámlálójához és a sorsoláshoz
-//   fordulo    – a forduló száma (üresen hagyható)
-//   ellenfel   – az ellenfél neve
-//   hazai      – true, ha a Lőrinci otthon játszott (a hazai csapat áll elöl az eredményben); false, ha idegenben
-//   eredmeny   – a végeredmény a mérkőzés sorrendjében, pl. "3-1" (hazai gól - vendég gól). Üresen hagyva a meccs "jövőbeli".
-//   helyszin   – a pálya neve
-//   gollovok   – (nem kötelező) lőrinci gólszerzők, szabad szöveg
-//   megjegyzes – (nem kötelező) rövid kiegészítés a Hírek kártyához
-// Forrás: MLSZ adatbank – U21: https://adatbank.mlsz.hu/league/67/10/33866/9.html
-//                          U16 Nyugat: https://adatbank.mlsz.hu/league/67/10/34159/8.html
-//                          U13 Nyugat: https://adatbank.mlsz.hu/league/67/10/34162/8.html
 window.IFJ = {
  u21: [
   { datum: "2026.08.30", ido: "11:00", fordulo: 1,  ellenfel: "FC Hatvan",              hazai: true,  eredmeny: "1-5",  helyszin: "Lőrinci Sporttelep",             gollovok: "", megjegyzes: "" },
@@ -54,24 +40,21 @@ window.IFJ = {
  ]
 };
 
-// ===== window.IFJ_TABLA – tabellák (Csapat oldal, jobb oldali tabella) =====
-// Sor: [csapat, M, Gy, D, V, "lőtt-kapott", pont, "forma (régebbitől az újabbig)"]
-// A "Lőrinci" nevű sor automatikusan sárgán kiemelt. fordulo: az MLSZ-forduló, ameddig az állás érvényes.
 window.IFJ_TABLA = {
-   u21: { fordulo: 10, rows: [
-   ["Bélkő SE-Bélapátfalva",9,8,1,0,"42-12",25,"GY GY GY GY GY"],
+ u21: { fordulo: 9, rows: [
+   ["Bélkő SE-Bélapátfalva",8,7,1,0,"31-11",22,"GY GY GY GY GY"],
    ["Egerszalók SE",8,6,2,0,"29-10",20,"GY GY GY GY GY"],
-   ["FC Hatvan",8,6,1,1,"48-9",19,"GY GY GY GY D"],
-   ["NEO24-Hevesi LSC",8,6,0,2,"63-13",18,"GY GY GY V GY"],
-   ["Heréd LC - Kistigrisek",9,5,1,3,"32-28",16,"V V GY V GY"],
-   ["Besenyőtelek SC",9,5,1,3,"34-33",16,"GY GY GY V V"],
-   ["Felsőtárkány SC",10,4,2,4,"36-37",14,"V V GY V GY"],
-   ["Andornaktálya SE.",9,3,2,4,"27-22",11,"V V V V D"],
-   ["Füzesabonyi SC",9,3,1,5,"45-35",10,"D V GY GY V"],
-   ["Lőrinci VSC",10,3,1,6,"41-38",10,"GY V GY V GY"],
-   ["Maklár SE",9,1,1,7,"19-41",4,"V V V GY V"],
-   ["Gyöngyöshalász SE",9,1,1,7,"17-54",4,"V D V GY V"],
-   ["Energia SC Gyöngyös",9,0,0,9,"8-109",0,"V V V V V"]
+   ["FC Hatvan",7,5,1,1,"42-8",16,"GY D GY GY GY"],
+   ["Heréd LC - Kistigrisek",8,5,1,2,"31-25",16,"D GY V GY V"],
+   ["NEO24-Hevesi LSC",7,5,0,2,"60-12",15,"V GY V GY GY"],
+   ["Felsőtárkány SC",9,4,2,3,"33-33",14,"GY GY V GY V"],
+   ["Besenyőtelek SC",8,4,1,3,"30-30",13,"V V V GY GY"],
+   ["Andornaktálya SE",9,3,2,4,"27-22",11,"D V V V V"],
+   ["Füzesabonyi SC",9,3,1,5,"45-35",10,"V GY GY V D"],
+   ["Lőrinci VSC",9,2,1,6,"32-37",7,"D V V GY V"],
+   ["Maklár SE",8,1,1,6,"18-35",4,"V V GY V V"],
+   ["Gyöngyöshalász SE",8,1,1,6,"16-45",4,"V V GY V D"],
+   ["Energia SC Gyöngyös",8,0,0,8,"7-98",0,"V V V V V"]
  ]},
  u16: { fordulo: 9, megjegyzes: "A tabella az MLSZ 8. fordulós állása + a 10.27-i Tarnamente–Lőrinci (4-0) meccs.", rows: [
    ["Heréd LC",8,7,1,0,"76-7",22,"GY D GY GY GY"],
@@ -84,7 +67,6 @@ window.IFJ_TABLA = {
    ["Zagyvaszántó SE",7,1,0,6,"13-76",3,"V GY V V V"],
    ["Apci TE",7,0,0,7,"8-114",0,"V V V V V"]
  ]},
- // Az U13 ligában az MLSZ nem vezet hivatalos tabellát, ezért csak a Lőrinci saját mérlege látszik.
  u13: { fordulo: 8, nincsSorrend: true, felirat: "Hivatalos tabella nincs – a Lőrinci mérlege", rows: [
    ["Lőrinci VSC U13",8,3,0,5,"19-74",9,"V V V GY GY"]
  ]}
