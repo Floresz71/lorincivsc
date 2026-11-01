@@ -26,7 +26,7 @@ window.IFJ = {
   { datum: "2026.10.11", ido: "11:00", fordulo: 7,  ellenfel: "Füzesabonyi SC",         hazai: true,  eredmeny: "2-3",  helyszin: "Lőrinci Sporttelep",             gollovok: "", megjegyzes: "" },
   { datum: "2026.10.18", ido: "11:00", fordulo: 8,  ellenfel: "Energia SC Gyöngyös",    hazai: true,  eredmeny: "15-2", helyszin: "Lőrinci Sporttelep",             gollovok: "Vig-Peterke Zoltán (4), Nótár Nikolasz Dominik (4), Belák Bertold (2), Szundi Szabolcs (2), Krizsán Regő, Nagy Erik, Tóth Levente", megjegyzes: "gólzápor" },
   { datum: "2026.10.25", ido: "10:00", fordulo: 9,  ellenfel: "Bélkő SE-Bélapátfalva",  hazai: false, eredmeny: "5-3",  helyszin: "Bélapátfalvai Sporttelep",       gollovok: "", megjegyzes: "" },
-  { datum: "2026.11.01", ido: "11:00", fordulo: 10, ellenfel: "Gyöngyöshalász SE",      hazai: true,  eredmeny: "",     helyszin: "Lőrinci Sporttelep",             gollovok: "", megjegyzes: "" }
+  { datum: "2026.11.01", ido: "11:00", fordulo: 10, ellenfel: "Gyöngyöshalász SE",      hazai: true,  eredmeny: "9-1",  helyszin: "Lőrinci Sporttelep",             gollovok: "Vig-Peterke Zoltán (3), Belák Bertold (2), Szécsényi Ádám, Nótár Nikolasz, Krizsán Regő, Tóth Levente", megjegyzes: "magabiztos győzelem - 9-1 - MLSZ: https://adatbank.mlsz.hu/match/67/10/33866/10/2201983.html" }
  ],
  u16: [
   { datum: "2026.09.05", ido: "10:00", fordulo: 1,  ellenfel: "Gyöngyöstarjáni RE",     hazai: true,  eredmeny: "15-2", helyszin: "Lőrinci Sporttelep",             gollovok: "", megjegyzes: "" },
@@ -58,7 +58,7 @@ window.IFJ = {
 // Sor: [csapat, M, Gy, D, V, "lőtt-kapott", pont, "forma (régebbitől az újabbig)"]
 // A "Lőrinci" nevű sor automatikusan sárgán kiemelt. fordulo: az MLSZ-forduló, ameddig az állás érvényes.
 window.IFJ_TABLA = {
- u21: { fordulo: 9, rows: [
+ u21: { fordulo: 10, rows: [
    ["Bélkő SE-Bélapátfalva",8,7,1,0,"31-11",22,"GY GY GY GY GY"],
    ["Egerszalók SE",8,6,2,0,"29-10",20,"GY GY GY GY GY"],
    ["FC Hatvan",7,5,1,1,"42-8",16,"GY D GY GY GY"],
@@ -68,9 +68,9 @@ window.IFJ_TABLA = {
    ["Besenyőtelek SC",8,4,1,3,"30-30",13,"V V V GY GY"],
    ["Andornaktálya SE",9,3,2,4,"27-22",11,"D V V V V"],
    ["Füzesabonyi SC",9,3,1,5,"45-35",10,"V GY GY V D"],
-   ["Lőrinci VSC",9,2,1,6,"32-37",7,"D V V GY V"],
+   ["Lőrinci VSC",10,3,1,6,"41-38",10,"V V GY V GY"],
    ["Maklár SE",8,1,1,6,"18-35",4,"V V GY V V"],
-   ["Gyöngyöshalász SE",8,1,1,6,"16-45",4,"V V GY V D"],
+   ["Gyöngyöshalász SE",9,1,1,7,"17-54",4,"V GY V D V"],
    ["Energia SC Gyöngyös",8,0,0,8,"7-98",0,"V V V V V"]
  ]},
  u16: { fordulo: 9, megjegyzes: "A tabella az MLSZ 8. fordulós állása + a 10.27-i Tarnamente–Lőrinci (4-0) meccs.", rows: [
