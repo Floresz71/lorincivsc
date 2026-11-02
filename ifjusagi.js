@@ -1,6 +1,20 @@
 // Ifjúsági eredmények és tabellák a Hírek és a Csapat oldalhoz (U21, U16, U13).
 // Ezt a fájlt kell frissíteni, ha új eredmény van – az oldal percenként újra beolvassa, és ha változott, újratölt.
 //
+// ===== window.IFJ – meccsek korosztályonként =====
+// Soronként egy meccs. Mezők:
+//   datum      – a meccs napja (ÉÉÉÉ.HH.NN)
+//   ido        – kezdés (ÓÓ:PP), a jövőbeli meccsek visszaszámlálójához és a sorsoláshoz
+//   fordulo    – a forduló száma (üresen hagyható)
+//   ellenfel   – az ellenfél neve
+//   hazai      – true, ha a Lőrinci otthon játszott (a hazai csapat áll elöl az eredményben); false, ha idegenben
+//   eredmeny   – a végeredmény a mérkőzés sorrendjében, pl. "3-1" (hazai gól - vendég gól). Üresen hagyva a meccs "jövőbeli".
+//   helyszin   – a pálya neve
+//   gollovok   – (nem kötelező) lőrinci gólszerzők, szabad szöveg
+//   megjegyzes – (nem kötelező) rövid kiegészítés a Hírek kártyához
+// Forrás: MLSZ adatbank – U21: https://adatbank.mlsz.hu/league/67/10/33866/9.html
+//                          U16 Nyugat: https://adatbank.mlsz.hu/league/67/10/34159/8.html
+//                          U13 Nyugat: https://adatbank.mlsz.hu/league/67/10/34162/8.html
 window.IFJ = {
  u21: [
   { datum: "2026.08.30", ido: "11:00", fordulo: 1,  ellenfel: "FC Hatvan",              hazai: true,  eredmeny: "1-5",  helyszin: "Lőrinci Sporttelep",             gollovok: "", megjegyzes: "" },
@@ -40,6 +54,9 @@ window.IFJ = {
  ]
 };
 
+// ===== window.IFJ_TABLA – tabellák (Csapat oldal, jobb oldali tabella) =====
+// Sor: [csapat, M, Gy, D, V, "lőtt-kapott", pont, "forma (régebbitől az újabbig)"]
+// A "Lőrinci" nevű sor automatikusan sárgán kiemelt. fordulo: az MLSZ-forduló, ameddig az állás érvényes.
 window.IFJ_TABLA = {
  u21: { fordulo: 9, rows: [
    ["Bélkő SE-Bélapátfalva",8,7,1,0,"31-11",22,"GY GY GY GY GY"],
@@ -67,6 +84,7 @@ window.IFJ_TABLA = {
    ["Zagyvaszántó SE",7,1,0,6,"13-76",3,"V GY V V V"],
    ["Apci TE",7,0,0,7,"8-114",0,"V V V V V"]
  ]},
+ // Az U13 ligában az MLSZ nem vezet hivatalos tabellát, ezért csak a Lőrinci saját mérlege látszik.
  u13: { fordulo: 8, nincsSorrend: true, felirat: "Hivatalos tabella nincs – a Lőrinci mérlege", rows: [
    ["Lőrinci VSC U13",8,3,0,5,"19-74",9,"V V V GY GY"]
  ]}
