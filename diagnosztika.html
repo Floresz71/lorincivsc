@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lőrinci VSC – oldal diagnosztika</title>
+<style>
+  body{font-family:system-ui,Segoe UI,Arial,sans-serif;background:#f3f4f7;color:#0b0f1a;margin:0;padding:24px}
+  .w{max-width:960px;margin:0 auto}
+  h1{margin:0 0 4px;font-size:26px}
+  .sub{color:#555;margin:0 0 18px}
+  .card{background:#fff;border:1px solid #d8def0;border-radius:12px;padding:16px 18px;margin:12px 0;box-shadow:0 2px 10px rgba(10,42,107,.06)}
+  .row{display:flex;gap:10px;align-items:flex-start;padding:7px 0;border-top:1px solid #eef1f8}
+  .row:first-of-type{border-top:none}
+  .ic{flex:none;width:26px;font-size:18px}
+  .t b{display:block}
+  .t small{color:#555}
+  code{background:#eef3ff;padding:1px 5px;border-radius:4px}
+  .ok{color:#15803d}.bad{color:#b91c1c}.warn{color:#b45309}
+  button{background:#0a2a6b;color:#ffcc00;border:none;border-radius:8px;padding:10px 16px;font-weight:700;cursor:pointer}
+  #sum{font-size:16px;font-weight:700}
+  pre{white-space:pre-wrap;background:#0b0f1a;color:#d1fae5;border-radius:8px;padding:12px;font-size:12px}
+</style>
+</head>
+<body>
+<div class="w">
+  <h1>Oldal-diagnosztika</h1>
+  <p class="sub">Megnézi, hogy a kint lévő fájlok megvannak-e, épek-e, és milyen adatot tartalmaznak. Semmit nem módosít.</p>
+  <button onclick="run()">↻ Újra futtatás</button>
+  <div class="card" id="sumcard"><span id="sum">Futtatás…</span></div>
+  <div class="card"><b>Fő fájlok</b><div id="main"></div></div>
+  <div class="card"><b>Gyanús / felesleges fájlok</b>
+    <div class="sub" style="margin:4px 0 8px">Ezek a nevek szoktak félrevinni egy oldalt (pl. régi másolat az index.html mellett). Ami „létezik”, azt érdemes törölni, ha nem tudod, miért van ott.</div>
+    <div id="stray"></div></div>
+  <div class="card"><b>Mit küldj el nekem?</b><div class="sub">Csináltass képernyőképet erről az oldalról (az egészről), vagy másold ki alább a jelentést.</div>
+    <pre id="rep"></pre></div>
+</div>
+<script>
+const BASE = location.href.replace(/[^\/]*$/, '');
+const rep = [];
+const $ = id => document.getElementById(id);
+function row(el, ok, title, detail){
+  const ic = ok===true?'✅':ok===false?'❌':'⚠️';
+  const cls = ok===true?'ok':ok===false?'bad':'warn';
+  el.insertAdjacentHTML('beforeend', `<div class="row"><div class="ic">${ic}</div><div class="t"><b class="${cls}">${title}</b><small>${detail||''}</small></div></div>`);
+  rep.push(`${ok===true?'OK ':ok===false?'HIBA':'FIGY'} | ${String(title).replace(/<[^>]+>/g,'')} | ${String(detail||'').replace(/<[^>]+>/g,'')}`);
+}
+async function get(name, nocache){
+  const url = BASE + name + (nocache ? '?diag=' + Date.now() : '');
+  const t0 = performance.now();
+  try{
+    const r = await fetch(url, nocache ? {cache:'no-store'} : {});
+    const text = r.ok ? await r.text() : '';
+    return {ok:r.ok, status:r.status, text, lm:r.headers.get('last-modified'), ms:Math.round(performance.now()-t0), len:text.length};
+  }catch(e){ return {ok:false, status:0, text:'', err:String(e)}; }
+}
+function evalJs(text){
+  const w = {};
+  try{ new Function('window', text)(w); return {w}; }
+  catch(e){ return {err:String(e)}; }
+}
+async function run(){
+  rep.length = 0;
+  $('main').innerHTML = ''; $('stray').innerHTML = ''; $('sum').textContent = 'Futtatás…';
+  let bad = 0, warn = 0;
+  const flag = ok => { if(ok===false) bad++; else if(ok!==true) warn++; };
+
+  // index.html
+  const idx = await get('index.html', true);
+  if(!idx.ok){ flag(false); row($('main'), false, 'index.html', 'Nem tölthető be (HTTP ' + idx.status + '). Ez a főoldal – ennek léteznie kell a tárhely gyökerében.'); }
+  else{
+    const t = idx.text;
+    const build = (t.match(/name="lv-build" content="([^"]+)"/)||[])[1];
+    const newBuild = /lv-hero/.test(t) && /__LV/.test(t);
+    flag(newBuild ? true : false);
+    row($('main'), newBuild, 'index.html', newBuild
+      ? 'Az új változat (build: ' + (build||'?') + '), ' + Math.round(t.length/1024) + ' KB, módosítva: ' + (idx.lm||'ismeretlen')
+      : 'RÉGI változat van kint (nincs benne az új adatréteg). Töltsd fel újra az új index.html-t. Módosítva: ' + (idx.lm||'ismeretlen'));
+    const needs = ['adat.js','jegyzokonyv.js','ifjusagi.js','elo.js'];
+    const miss = needs.filter(n => t.indexOf('src="'+n+'"') < 0);
+    if(newBuild && miss.length){ flag(false); row($('main'), false, 'index.html hivatkozásai', 'Hiányzik belőle: ' + miss.join(', ')); }
+  }
+
+  // adatfájlok
+  const files = {
+    'adat.js': w => { const A = w.ADAT; if(!A) return [false,'nincs window.ADAT']; 
+        const u = A.utolso||{}, e = A.elozo||{}, t = A.tabla||{};
+        return [true, `utolsó meccs: ${u.fordulo}. forduló (${u.datum}) ${u.fejlec||''}; előző: ${e.fordulo}.; tabella: ${t.fordulo}. forduló, ${(t.sorok||[]).length} csapat; frissítve: ${A.frissitve||'?'}`, Number(u.fordulo)]; },
+    'jegyzokonyv.js': w => { const J = w.JKV; if(!J) return [false,'nincs window.JKV']; 
+        const ks = Object.keys(J).map(Number).sort((a,b)=>a-b);
+        return [true, `${ks.length} forduló jegyzőkönyve: ${ks.join(', ')}`, Math.max.apply(null,ks)]; },
+    'ifjusagi.js': w => { const I = w.IFJ, T = w.IFJ_TABLA; if(!I) return [false,'nincs window.IFJ'];
+        return [true, `U21: ${(I.u21||[]).length} meccs, U16: ${(I.u16||[]).length}, U13: ${(I.u13||[]).length}; tabella: ${T?Object.keys(T).join(', '):'nincs'}`]; },
+    'elo.js': w => { const E = w.ELO; if(!E) return [false,'nincs window.ELO']; return [true, `élő állás napja: ${E.datum}, állás: ${E.hazai}-${E.vendeg}`]; }
+  };
+  let lastAdat = null, lastJkv = null;
+  for(const [name, check] of Object.entries(files)){
+    const r = await get(name, true);
+    const rc = await get(name, false);
+    if(!r.ok){ flag(false); row($('main'), false, name, `NEM TÖLTHETŐ BE (HTTP ${r.status}${r.err?': '+r.err:''}). Ha ez hiányzik, az oldal csak a beépített, RÉGI adatokat mutatja!`); continue; }
+    const ev = evalJs(r.text);
+    if(ev.err){ flag(false); row($('main'), false, name, `SZINTAXISHIBA a fájlban: <code>${ev.err}</code> – emiatt a fájl nem töltődik be, és az oldal a RÉGI beépített adatokat mutatja.`); continue; }
+    const res = check(ev.w);
+    flag(res[0]);
+    let extra = '';
+    if(rc.ok && rc.len !== r.len){ flag('w'); extra = ' ⚠️ A böngésző gyorsítótára MÁS (régi) példányt adna: Ctrl+F5 kell.'; }
+    row($('main'), res[0] && !extra ? true : (res[0] ? 'w' : false), name + ' <small>(' + Math.round(r.len/1024*10)/10 + ' KB, módosítva: ' + (r.lm||'ismeretlen') + ')</small>', res[1] + extra);
+    if(name==='adat.js') lastAdat = res[2];
+    if(name==='jegyzokonyv.js') lastJkv = res[2];
+  }
+  if(lastAdat!=null && lastJkv!=null && lastAdat !== lastJkv){
+    flag('w'); row($('main'), 'w', 'Eltérés', `az adat.js legutóbbi fordulója (${lastAdat}.) és a jegyzokonyv.js legújabb blokkja (${lastJkv}.) nem egyezik – valamelyik fájl régebbi.`);
+  }
+
+  // gyanús fájlok
+  const stray = ['lorincivsc_hu.html','Index.html','index_old.html','index-old.html','teszt.html','test.html','update.py','adat_old.js','Adat.js','ADAT.js','adat.js.txt','adat.json','data.js','script.js','app.js','main.js','style.css','404.html'];
+  let found = 0;
+  const results = await Promise.all(stray.map(n => get(n, true).then(r => [n, r])));
+  for(const [n, r] of results){
+    if(r.ok){ found++; 
+      const why = n==='update.py' ? 'Ez a régi frissítő szkript (a tárhelyen nem kell, és nem fut).' :
+                  n==='lorincivsc_hu.html' ? 'Ez az oldal másik példánya – ha ezt nyitod meg, a régit látod, az index.html mellett felesleges.' :
+                  n==='404.html' ? 'Ez a hibaoldal – ha nem te tetted oda szándékosan, törölheted.' :
+                  'Valószínűleg régi másolat vagy véletlenül feltöltött fájl.';
+      row($('stray'), 'w', n + ' létezik', why); flag('w'); }
+  }
+  if(!found) row($('stray'), true, 'Nincs gyanús fájl', 'A fenti gyakori nevek közül egyik sem létezik.');
+  const small = [];
+  $('rep').textContent = `Diagnosztika: ${location.href}\nIdő: ${new Date().toLocaleString('hu-HU')}\n\n` + rep.join('\n');
+  const s = $('sum');
+  if(bad){ s.textContent = '❌ ' + bad + ' hiba – lásd lent'; s.className='bad'; }
+  else if(warn){ s.textContent = '⚠️ Működik, de ' + warn + ' figyelmeztetés van'; s.className='warn'; }
+  else { s.textContent = '✅ Minden rendben'; s.className='ok'; }
+}
+run();
+</script>
+</body>
+</html>
