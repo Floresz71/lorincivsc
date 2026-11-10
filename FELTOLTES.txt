@@ -1,16 +1,17 @@
 FELTÖLTÉS A GITHUB PAGES OLDALRA (floresz71/lorincivsc)
 =======================================================
-Ezeket a fájlokat kell a GitHub tárhely (repository) GYÖKERÉBE feltölteni, a régiek helyére (felülírva):
+Töltsd fel a tárhely (repository) GYÖKERÉBE, a régiek helyére (felülírva):
 
-  index.html        <- az oldal maga (a lorincivsc_hu.html új változata)
+  index.html        <- az oldal maga
   adat.js           <- felnőtt eredmények + tabella (12. fordulóig)
   jegyzokonyv.js    <- részletes jegyzőkönyvek (1-12. forduló)
-  ifjusagi.js       <- U21 / U16 / U13 eredmények és tabellák
+  ifjusagi.js       <- U21 / U16 / U13 eredmények és tabellák (kézi frissítés)
   elo.js            <- élő állás (meccsnapokon frissítendő)
+  frissit.py        <- automatikus MLSZ-frissítő szkript (lásd: AUTOMATIKUS_FRISSITES.txt)
+  .github/workflows/frissites.yml   <- ütemezett futtatás a GitHubon (lásd: AUTOMATIKUS_FRISSITES.txt)
   fotok/            <- játékosfotók (ha vannak)
 
 GitHubon: Add file -> Upload files -> húzd be a fájlokat -> Commit changes.
+A .github mappát a webes feltöltő nem mindig fogadja: ott használd az "Add file -> Create new file" gombot,
+és a névbe írd: .github/workflows/frissites.yml  (lásd AUTOMATIKUS_FRISSITES.txt).
 1-2 perc múlva él az oldal. Ha a böngésző még a régit mutatja: Ctrl+F5.
-
-FONTOS: az oldal nem tud magától az MLSZ-ről adatot húzni.
-Új forduló után az adat.js-t (és a jegyzokonyv.js-t) kell frissíteni és feltölteni.

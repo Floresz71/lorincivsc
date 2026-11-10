@@ -1,0 +1,30 @@
+AUTOMATIKUS FRISSÍTÉS (felnőtt eredmények, tabella, jegyzőkönyvek)
+===================================================================
+
+Mit csinál a frissit.py:
+  - lekéri a Lőrinci felnőtt csapat MLSZ-oldalát (tabella + sorsolás),
+  - ha van új lejátszott meccs, lekéri a meccsoldalt is (gólok, kezdők, cserék, lapok, játékvezető),
+  - átírja az adat.js-t (utolsó/előző meccs, tabella) és új blokkot szúr a jegyzokonyv.js-be.
+  A kézzel írt részeket (edzői nyilatkozatok, posztok) NEM bántja, meglévő fordulóblokkot nem ír felül.
+
+A) FUTTATÁS A SAJÁT GÉPEDEN (kézzel)
+  1. pip install requests beautifulsoup4 lxml
+  2. Tedd a frissit.py-t az adat.js mellé, majd:   python frissit.py
+     (előtte kipróbálhatod:  python frissit.py --dry-run  – csak kiírja, mit változtatna)
+  3. Töltsd fel a módosult adat.js-t és jegyzokonyv.js-t a GitHubra.
+
+B) TELJESEN AUTOMATA (GitHub Actions)
+  1. Töltsd fel a GitHub tárhely gyökerébe: frissit.py, adat.js, jegyzokonyv.js (és az oldal többi fájlját).
+  2. Hozd létre a .github/workflows/frissites.yml fájlt (a zipben benne van).
+     Weben: Add file -> Create new file -> a név mezőbe írd: .github/workflows/frissites.yml
+     (a perjelek mappákat hoznak létre) -> másold be a fájl tartalmát -> Commit.
+  3. Settings -> Actions -> General -> Workflow permissions -> "Read and write permissions" -> Save.
+  4. Actions fül -> "MLSZ adatfrissítés" -> Run workflow: próbáld ki kézzel. Zöld pipa = működik.
+  Ezután félóránként (9-23 óra között) magától lefut, és ha van új adat, feltölti.
+
+Tudnivalók:
+  - Az ifjúsági csapatok (U21/U16/U13) adatai az ifjusagi.js-ben maradnak kézi frissítésűek.
+  - Ha az MLSZ megváltoztatja az oldal szerkezetét, a szkript hibával leáll (és nem ír semmit) – ilyenkor szólj.
+  - A GitHub 60 nap inaktivitás után szünetelteti az ütemezést (pl. nyári szünetben); az Actions fülön újra bekapcsolható.
+  - Az első automatikus frissítés után nézd meg, hogy az oldal tényleg frissült-e (a GitHub Pages néha
+    pár percet késik). Ha nem frissül, szólj, és átállítjuk személyes hozzáférési kulcsra.
