@@ -9,9 +9,18 @@ Töltsd fel a tárhely (repository) GYÖKERÉBE, a régiek helyére (felülírva
   elo.js            <- élő állás (meccsnapokon frissítendő)
   frissit.py        <- automatikus MLSZ-frissítő szkript (lásd: AUTOMATIKUS_FRISSITES.txt)
   .github/workflows/frissites.yml   <- ütemezett futtatás a GitHubon (lásd: AUTOMATIKUS_FRISSITES.txt)
+  diagnosztika.html <- ellenőrző oldal: megmutatja, mi van kint és mi nincs rendben (lásd lent)
   fotok/            <- játékosfotók (ha vannak)
 
 GitHubon: Add file -> Upload files -> húzd be a fájlokat -> Commit changes.
 A .github mappát a webes feltöltő nem mindig fogadja: ott használd az "Add file -> Create new file" gombot,
 és a névbe írd: .github/workflows/frissites.yml  (lásd AUTOMATIKUS_FRISSITES.txt).
 1-2 perc múlva él az oldal. Ha a böngésző még a régit mutatja: Ctrl+F5.
+
+HIBAKERESÉS
+-----------
+Ha az oldal nem frissül, nyisd meg ezt a címet (a saját oldalad mellett):
+    https://floresz71.github.io/lorincivsc/diagnosztika.html
+Megmutatja, hogy az index.html új vagy régi változat-e, megvannak-e és épek-e az adatfájlok,
+melyik forduló szerepel bennük, és van-e felesleges fájl (pl. régi másolat vagy update.py).
+Csinálj róla képernyőképet, és küldd el.

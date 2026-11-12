@@ -423,6 +423,23 @@ def insert_block(jkv_src, block):
     return jkv_src[:i] + block + ",\n" + jkv_src[i:]
 
 
+def sorsolas_from(sched):
+    """A hátralévő lőrinci meccsek (adat.js "sorsolas" mező) – a következő meccs és a menetrend ebből épül."""
+    out = []
+    for s in sched:
+        if s["played"] or not s["round"]:
+            continue
+        m = re.match(r"(\d{4})\.\s*(\d{2})\.\s*(\d{2})\.\s*(\d{1,2}):(\d{2})", s["datetext"] or "")
+        if not m:
+            continue
+        haz = (s["home"] == OUR)
+        out.append({"fordulo": s["round"], "datum": f"{m.group(1)}.{m.group(2)}.{m.group(3)}",
+                    "ido": f"{int(m.group(4)):02d}:{m.group(5)}", "hazai": haz,
+                    "ellenfel_nev": s["away"] if haz else s["home"], "helyszin": s["venue"]})
+    out.sort(key=lambda x: x["datum"])
+    return out
+
+
 def table_rows_for_adat(rows, old_rows):
     old = {r["team"]: r for r in old_rows}
     out = []
@@ -495,6 +512,11 @@ def run(folder, dry=False, force=False, getter=None, log=print):
                 if second[0]["datum"] > prev["datum"]:
                     adat["elozo"] = adat_obj(second[0], second[1])
         changed = True
+    sor = sorsolas_from(sched)
+    if sor and sor != adat.get("sorsolas"):
+        adat["sorsolas"] = sor
+        changed = True
+        log(f"  menetrend frissítve ({len(sor)} hátralévő meccs)")
     old_rows = adat["tabla"]["sorok"]
     new_rows = table_rows_for_adat(best["rows"], old_rows)
     sig = lambda rows: [(x["team"], x["m"], x["g"], x["p"], tuple(x.get("forma", []))) for x in rows]
