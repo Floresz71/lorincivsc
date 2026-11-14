@@ -1,0 +1,9 @@
+.lineups-box{margin-top:16px;background:#0a1a4a;border:1px solid #ffd400;border-radius:12px;padding:16px;color:#fff}
+.lineups-head{display:flex;justify-content:space-between}
+.lineups-head h3{color:#ffd400;margin:0 0 12px}
+.lineups-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.lineups-grid ul{list-style:none;padding:0;margin:0}
+.lineups-grid li{padding:4px 0;border-bottom:1px solid rgba(255,255,255,.08)}
+.lineups-grid li b{display:inline-block;min-width:28px;color:#ffd400}
+.lu-sub{color:#ffd400;font-weight:700;margin:12px 0 4px}
+@media(max-width:600px){.lineups-grid{grid-template-columns:1fr}}
