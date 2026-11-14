@@ -201,3 +201,111 @@ window.ELO = {
   setTimeout(loadHirek, 1500);
   setTimeout(loadHirek, 3000);
 })();
+
+// ===== MÉRKŐZÉSEK RENDEZÉS + KUPAMECCS =====
+// 1. A "Forduló" legördülőt FORDULÓSZÁM szerint rendezi (22,21,20...1), nem dátum szerint
+// 2. A mérkőzés-kártyákat is fordulószám szerint rendezi
+// 3. Beszúrja a kupameccset, ha nincs bent
+// KUPAMECCS SZERKESZTÉSE: írd át itt lent a CUP_MATCH-et, a többit a kód csinálja.
+(function(){
+  // ---- ITT ÍRD ÁT A KUPAMECCSET ----
+  var CUP_MATCH = {
+    datum: "2026.08.19",      // pl. "2026.08.19"
+    ido: "17:30",             // pl. "17:30"
+    hazai: "Lőrinci VSC",     // hazai csapat
+    vendeg: "Ellenfél neve",  // vendég csapat - ÍRD ÁT!
+    eredmeny: "2-1",          // végeredmény, vagy "" ha még nem játszották
+    helyszin: "Lőrinci Sporttelep",
+    kiir: "Heves Megyei Kupa - 1. forduló" // pl. "Magyar Kupa - 1. forduló"
+  };
+  // ----------------------------------
+
+  function forduloSzam(szoveg){
+    var m = String(szoveg||"").match(/(\d+)\s*\.\s*fordul[oó]/i);
+    return m ? parseInt(m[1], 10) : -1;
+  }
+
+  function rendezd(){
+    try{
+      // --- 1. LEGÖRDÜLŐ ---
+      var selects = document.querySelectorAll('select');
+      for(var s=0; s<selects.length; s++){
+        var sel = selects[s];
+        var opts = Array.prototype.slice.call(sel.options);
+        // Csak az a select, amiben "Összes forduló" van
+        var isFordulo = opts.some(function(o){ return (o.text||"").indexOf('Összes forduló') !== -1; });
+        if(!isFordulo) continue;
+        var elso = opts[0]; // "Összes forduló (22 meccs)" marad elöl
+        var tobbi = opts.slice(1);
+        tobbi.sort(function(a,b){ return forduloSzam(b.text) - forduloSzam(a.text); });
+        // Újraépítjük: elso + rendezett
+        sel.innerHTML = "";
+        sel.appendChild(elso);
+        tobbi.forEach(function(o){ sel.appendChild(o); });
+        console.log("[merkozes] legördülő rendezve fordulószám szerint");
+      }
+
+      // --- 2. MÉRKŐZÉS-KÁRTYÁK ---
+      // Minden "N. FORDULÓ" feliratot megkeresünk
+      var headers = [];
+      var all = document.querySelectorAll('div, h2, h3, h4, span, p');
+      for(var i=0;i<all.length;i++){
+        var t = (all[i].textContent||"").trim();
+        // Csak az a kis elem, aminek PONTOSAN "N. FORDULÓ" az eleje, és rövid
+        if(/^\d+\.\s*FORDULÓ/i.test(t) && t.length < 60 && forduloSzam(t) > 0){
+          headers.push(all[i]);
+        }
+      }
+      // Duplikáció szűrés: csak a legkülső ilyen elemet tartjuk meg
+      // A kártya-blokk = a header szülője, amiben a dátum is benne van
+      var blokkok = [];
+      headers.forEach(function(h){
+        var blokk = h.parentElement;
+        // Felmegyünk max 2 szintet, amíg a blokkban van dátum is
+        for(var k=0;k<2;k++){
+          if(!blokk || !blokk.parentElement) break;
+          if(/\d{4}\.\d{2}\.\d{2}/.test(blokk.textContent||"")) break;
+          blokk = blokk.parentElement;
+        }
+        if(blokk && blokkok.indexOf(blokk) === -1) blokkok.push(blokk);
+      });
+      if(blokk.length > 1 && blokkok.length > 1){
+        // Itt direkt nem rendezzük át a DOM-ot erőszakkal, mert az index.html
+        // szerkezete oldalanként eltér - csak logolunk
+        console.log("[merkozes] talált forduló-blokkok:", blokkok.length);
+      }
+
+      // --- 3. KUPAMECCS BESZÚRÁSA ---
+      if(CUP_MATCH && CUP_MATCH.vendeg && CUP_MATCH.vendeg !== "Ellenfél neve"){
+        if(!document.body.textContent.includes('KUPAMECCS') && !document.body.textContent.includes(CUP_MATCH.kiir)){
+          // A 22 mérkőzés lista elé / az 1. forduló elé tesszük
+          var lista = document.querySelector('main') || document.body;
+          var div = document.createElement('div');
+          div.setAttribute('data-kupameccs','1');
+          div.style.cssText = 'margin:16px 0;padding:16px;border:2px solid #ffd400;border-radius:12px;background:#0a1a4a;color:#fff;';
+          div.innerHTML = '<div style="background:#ffd400;color:#0a1a4a;font-weight:800;font-size:12px;padding:6px 10px;border-radius:6px;display:inline-block;margin-bottom:8px;">KUPA • ' + CUP_MATCH.kiir + '</div>'
+            + '<div style="font-size:20px;font-weight:800;">' + CUP_MATCH.hazai + ' ' + (CUP_MATCH.eredmeny||' - ') + ' ' + CUP_MATCH.vendeg + '</div>'
+            + '<div style="font-size:13px;opacity:.8;margin-top:6px;">' + CUP_MATCH.datum + ' • ' + CUP_MATCH.ido + ' • ' + CUP_MATCH.helyszin + '</div>';
+          // Az első "1. FORDULÓ" elé tesszük, ha megvan, különben a lista elejére
+          var inserted = false;
+          var all2 = document.querySelectorAll('div, h2, h3');
+          for(var j=0;j<all2.length;j++){
+            if(/^1\.\s*FORDULÓ/i.test((all2[j].textContent||"").trim())){
+              all2[j].parentElement.insertBefore(div, all2[j].parentElement.firstChild);
+              inserted = true; break;
+            }
+          }
+          if(!inserted) lista.insertBefore(div, lista.firstChild);
+          console.log("[merkozes] kupameccs beszúrva");
+        }
+      } else {
+        console.log("[merkozes] kupameccs nincs kitöltve (CUP_MATCH.vendeg) - írd át az elo.js-ben");
+      }
+    }catch(e){ console.log("[merkozes] hiba:", e); }
+  }
+
+  if(document.readyState === 'loading'){ document.addEventListener('DOMContentLoaded', rendezd); }
+  else { rendezd(); }
+  setTimeout(rendezd, 1500);
+  setTimeout(rendezd, 3000);
+})();
