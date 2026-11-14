@@ -1,0 +1,51 @@
+{
+  "match": "Heréd-Kistigrisek LC - Lőrinci VSC",
+  "match_url": "https://adatbank.mlsz.hu/match/67/10/33860/14/2191326.html",
+  "has_lineups": true,
+  "home": {
+    "team": "Heréd-Kistigrisek LC",
+    "starters": [
+      {"number": 22, "name": "MÁRTA ÁRMIN LEVENTE"},
+      {"number": 4, "name": "BERTA MILÁN"},
+      {"number": 5, "name": "SZEGEDI TAMÁS DÁVID"},
+      {"number": 7, "name": "BÁRKÁNYI ARNOLD"},
+      {"number": 9, "name": "DÁVID GERGŐ ISTVÁN"},
+      {"number": 11, "name": "TÓTH OLIVÉR"},
+      {"number": 12, "name": "TÓTH DÁNIEL"},
+      {"number": 13, "name": "TÁBIK DÁVID"},
+      {"number": 14, "name": "TARI SZABOLCS"},
+      {"number": 16, "name": "BALLA ZOLTÁN"},
+      {"number": 19, "name": "PETRÁS LUCAS OLIVÉR"}
+    ],
+    "bench": [
+      {"number": 6, "name": "CZAKÓ BENCE"},
+      {"number": 17, "name": "ÉLL DOMINIK"},
+      {"number": 20, "name": "LAKATOS KRISZTIÁN"}
+    ]
+  },
+  "away": {
+    "team": "Lőrinci VSC",
+    "starters": [
+      {"number": 55, "name": "ÁLL MARTIN BENCE"},
+      {"number": 3, "name": "OLÁH NORBERT"},
+      {"number": 4, "name": "ZÖLDI DÁNIEL"},
+      {"number": 6, "name": "PANYI ATTILA"},
+      {"number": 7, "name": "SZELES PATRIK"},
+      {"number": 9, "name": "NAGY BENCE GERGŐ"},
+      {"number": 11, "name": "FODOR FLÓRIÁN"},
+      {"number": 12, "name": "BELÁK BERTOLD"},
+      {"number": 21, "name": "MOLNÁR ERIK JÓZSEF"},
+      {"number": 22, "name": "STARK JÁNOS"},
+      {"number": 27, "name": "ÁCS ÁDÁM"}
+    ],
+    "bench": [
+      {"number": 90, "name": "TÓTH GÁBOR BÁLINT"},
+      {"number": 5, "name": "ÁLL DÁVID"},
+      {"number": 8, "name": "CSASZLAI DÁVID KEVIN"},
+      {"number": 14, "name": "SZÉCSÉNYI ÁDÁM"},
+      {"number": 16, "name": "VIG-PETERKE ZOLTÁN"},
+      {"number": 19, "name": "SŐREGI ZOLTÁN"},
+      {"number": 20, "name": "BÍRÓ DÁRIUSZ PÉTER"}
+    ]
+  }
+}
