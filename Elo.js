@@ -174,27 +174,32 @@ window.ELO = {
       console.log("[hirek] JSON nem található, tartalék adatot használok");
       data = FALLBACK;
     }
-    var html = data.slice(0,2).map(renderCard).join('');
-    // Bal oldal: MECCSJEGYZŐKÖNYV linket keressük
-    var links = document.querySelectorAll('a');
-    var anchor = null;
-    for(var i=0;i<links.length;i++){
-      if(links[i].textContent && links[i].textContent.indexOf('MECCSJEGYZŐKÖNYV') !== -1){ anchor = links[i]; break; }
-    }
-    if(!anchor){ console.log("[hirek] nincs MECCSJEGYZŐKÖNYV link"); return; }
-    // Link -> kártya (1) -> bal oszlop (2). Soha nem megyünk body/html-ig.
-    var container = anchor.parentElement;
-    for(var k=0;k<2;k++){
-      if(!container || !container.parentElement) break;
-      if(container.parentElement === document.body || container.parentElement === document.documentElement) break;
-      container = container.parentElement;
-    }
-    if(!container || container.textContent.indexOf('MECCSJEGYZŐKÖNYV') === -1){
-      console.log("[hirek] nem találtam a bal oszlopot");
-      return;
-    }
-    console.log("[hirek] cserélem a bal oldalt");
-    container.innerHTML = html;
+    // JAVÍTÁS: kártyánként cserélünk, nem az egész oszlopot!
+    // Így nem tudjuk letörölni a középső + jobb oszlopot.
+    var links = Array.prototype.filter.call(document.querySelectorAll('a'), function(a){
+      return a.textContent && a.textContent.indexOf('MECCSJEGYZŐKÖNYV') !== -1;
+    });
+    console.log("[hirek] talált kártya-link:", links.length);
+    if(!links.length){ console.log("[hirek] nincs MECCSJEGYZŐKÖNYV link"); return; }
+    var cards = data.slice(0,2).map(renderCard);
+    // Minden régi kártyát a saját helyén cserélünk
+    links.forEach(function(link, idx){
+      if(idx >= cards.length) return;
+      // A kártya = a link legközelebbi olyan őse, amiben már benne van a "MECCSJEGYZŐKÖNYV" + egy dátum
+      var card = link;
+      for(var k=0;k<4;k++){
+        if(!card.parentElement) break;
+        card = card.parentElement;
+        // A kártya az a doboz, amiben a link + a cím is benne van, de még nem az egész oldal
+        if(card.textContent && card.textContent.indexOf('MECCSJEGYZŐKÖNYV') !== -1 && card.textContent.length < 3000) break;
+      }
+      if(!card) return;
+      var tmp = document.createElement('div');
+      tmp.innerHTML = cards[idx];
+      var uj = tmp.firstChild;
+      if(card.parentElement) card.parentElement.replaceChild(uj, card);
+      console.log("[hirek] kártya cserélve:", idx);
+    });
   }
   if(document.readyState === 'loading'){ document.addEventListener('DOMContentLoaded', loadHirek); }
   else { loadHirek(); }
@@ -325,4 +330,75 @@ window.ELO = {
   else { rendezd(); }
   setTimeout(rendezd, 1500);
   setTimeout(rendezd, 3000);
+})();
+
+// ===== TABELLA - JOBB OLDAL =====
+// Adat: data/tabella.json (az elo.py írja az MLSZ meccsoldal TABELLA részéből)
+// Ha nincs JSON, a beágyazott tartalékot használja.
+(function(){
+  if(window.__TABELLA_RUNNING) return;
+  window.__TABELLA_RUNNING = true;
+  var FALLBACK_TABELLA = [
+    {"h":1,"csapat":"FC Hatvan","m":13,"gy":10,"d":1,"v":2,"lg":66,"kg":15,"gk":51,"p":31},
+    {"h":2,"csapat":"Maklár SE","m":14,"gy":9,"d":3,"v":2,"lg":35,"kg":20,"gk":15,"p":30},
+    {"h":3,"csapat":"Gyöngyöshalász SE","m":14,"gy":9,"d":2,"v":3,"lg":32,"kg":18,"gk":14,"p":29},
+    {"h":4,"csapat":"Marshall-ASE","m":14,"gy":8,"d":3,"v":3,"lg":39,"kg":15,"gk":24,"p":27},
+    {"h":5,"csapat":"Lőrinci VSC","m":14,"gy":8,"d":3,"v":3,"lg":29,"kg":26,"gk":3,"p":27},
+    {"h":6,"csapat":"Gyöngyösi AK","m":14,"gy":7,"d":5,"v":2,"lg":22,"kg":11,"gk":11,"p":26},
+    {"h":7,"csapat":"Egerszalók SE","m":14,"gy":5,"d":4,"v":5,"lg":26,"kg":29,"gk":-3,"p":19},
+    {"h":8,"csapat":"Eger SE II.","m":14,"gy":3,"d":2,"v":9,"lg":15,"kg":34,"gk":-19,"p":11},
+    {"h":9,"csapat":"Bélkő SE-Bélapátfalva","m":14,"gy":3,"d":2,"v":9,"lg":25,"kg":49,"gk":-24,"p":11},
+    {"h":10,"csapat":"Heréd-Kistigrisek LC","m":14,"gy":3,"d":2,"v":9,"lg":20,"kg":45,"gk":-25,"p":11},
+    {"h":11,"csapat":"Energia SC Gyöngyös","m":14,"gy":3,"d":1,"v":10,"lg":26,"kg":41,"gk":-15,"p":9},
+    {"h":12,"csapat":"Besenyőtelek SC","m":13,"gy":1,"d":0,"v":12,"lg":12,"kg":44,"gk":-32,"p":3}
+  ];
+  async function loadTabella(){
+    var data = null;
+    var urls = ['data/tabella.json','tabella.json'];
+    for(var i=0;i<urls.length;i++){
+      try{ var r = await fetch(urls[i]+'?v='+Date.now()); if(r.ok){ data = await r.json(); break; } }catch(e){}
+    }
+    if(!data || !data.length){ console.log("[tabella] JSON nincs, tartalékot használok"); data = FALLBACK_TABELLA; }
+    console.log("[tabella] sorok:", data.length);
+    // Jobb oldal: az a doboz, amiben "VÁRMEGYEI I. O." van
+    var all = document.querySelectorAll('div, section, aside, table');
+    var doboz = null;
+    for(var i=0;i<all.length;i++){
+      var t = all[i].textContent||"";
+      if(t.indexOf('VÁRMEGYEI I. O.') !== -1 && t.indexOf('Lőrinci VSC') !== -1 && t.length < 8000){
+        doboz = all[i]; break;
+      }
+    }
+    if(!doboz){ console.log("[tabella] nem találtam a jobb oldali dobozt"); return; }
+    // Ha van benne <table>, annak a <tbody>-jét építjük újra
+    var table = doboz.querySelector('table');
+    if(table){
+      var tbody = table.querySelector('tbody') || table;
+      var html = data.map(function(r){
+        var kiemelt = r.csapat.indexOf('Lőrinci') !== -1 ? 'background:#ffd400;color:#0a1a4a;font-weight:800;' : '';
+        return '<tr style="'+kiemelt+'"><td>'+r.h+'</td><td>'+r.csapat+'</td><td>'+r.m+'</td><td>'+r.lg+'-'+r.kg+'</td><td>'+r.p+'p</td></tr>';
+      }).join('');
+      tbody.innerHTML = html;
+      console.log("[tabella] táblázat frissítve");
+      return;
+    }
+    // Ha nincs <table>, hanem div-es sorok vannak: soronként frissítjük a pontokat
+    // Minden sorban megkeressük a csapatnevet, és a sor végén lévő pontot
+    var sorok = doboz.querySelectorAll('div');
+    data.forEach(function(r){
+      for(var j=0;j<sorok.length;j++){
+        if((sorok[j].textContent||"").indexOf(r.csapat) !== -1 && sorok[j].textContent.length < 200){
+          // A sorban lévő utolsó "NNp" mintát cseréljük
+          sorok[j].innerHTML = sorok[j].innerHTML.replace(/\d+p\b/, r.p+'p');
+          break;
+        }
+      }
+    });
+    console.log("[tabella] div-es sorok frissítve");
+  }
+  if(document.readyState === 'loading'){ document.addEventListener('DOMContentLoaded', loadTabella); }
+  else { loadTabella(); }
+  setTimeout(loadTabella, 1500);
+  setTimeout(loadTabella, 3000);
+  setTimeout(loadTabella, 6000);
 })();
