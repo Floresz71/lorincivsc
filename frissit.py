@@ -123,9 +123,9 @@ def parse_table(html):
 
 
 # ------------------------------------------------------------------ sorsolás (Lőrinci meccsek)
-def parse_schedule(html):
+def parse_schedule(html, league=None):
     b = BeautifulSoup(html, "lxml")
-    lg = re.escape(LEAGUE)
+    lg = re.escape(league or LEAGUE)
     out, seen = [], set()
     for d in b.find_all("div", class_="schedule"):
         ht, at = d.find(class_="home_team"), d.find(class_="away_team")
@@ -537,19 +537,192 @@ def run(folder, dry=False, force=False, getter=None, log=print):
     return changed
 
 
+
+# ================================================================== IFJÚSÁGI CSAPATOK (U21, U16, U13) -> ifjusagi.js
+YOUTH = {
+    "u21": {"league": "67/10/33866", "team": 331297, "table": True},
+    "u16": {"league": "67/10/34159", "team": 331503, "table": True},
+    "u13": {"league": "67/10/34162", "team": 331589, "table": False},   # az U13 ligában nincs hivatalos tabella
+}
+
+IFJ_HEADER = """// Ifjúsági eredmények és tabellák a Hírek és a Csapat oldalhoz (U21, U16, U13).
+// Ezt a fájlt a frissit.py automatikusan írja az MLSZ adatbankból (meccsek, eredmények, tabellák).
+// KÉZZEL megadható, és a frissítés MEGTARTJA: a meccsek "gollovok" (lőrinci gólszerzők) és "megjegyzes" mezője
+// (a meccset a "datum" azonosítja). Minden más mezőt a szkript felülír.
+// Mezők: datum (ÉÉÉÉ.HH.NN), ido, fordulo, ellenfel, hazai (true = otthon), eredmeny ("3-1", a mérkőzés sorrendjében; üres = még nincs),
+//        helyszin, gollovok, megjegyzes.
+// Forrás: MLSZ adatbank – U21: https://adatbank.mlsz.hu/league/67/10/33866/1.html
+//                          U16 Nyugat: https://adatbank.mlsz.hu/league/67/10/34159/1.html
+//                          U13 Nyugat: https://adatbank.mlsz.hu/league/67/10/34162/1.html
+"""
+
+
+def ifj_club_url(cfg, rnd):
+    return f"{BASE}/club/{cfg['league']}/{rnd}/{cfg['team']}.html"
+
+
+def load_ifj(path):
+    """Beolvassa a meglévő ifjusagi.js-t (JSON-stílus; régi JS-stílusnál node-dal alakítja át, ha van)."""
+    if not os.path.exists(path):
+        return {}, {}
+    src = read(path)
+
+    def after(marker):
+        i = src.find(marker)
+        if i < 0:
+            return None
+        try:
+            obj, _ = json.JSONDecoder().raw_decode(src[i + len(marker):].lstrip())
+            return obj
+        except Exception:
+            return None
+    ifj, tab = after("window.IFJ ="), after("window.IFJ_TABLA =")
+    if ifj is None or tab is None:
+        try:   # régi (JS-objektum) formátum
+            import subprocess
+            code = "global.window={};eval(require('fs').readFileSync(process.argv[1],'utf8'));process.stdout.write(JSON.stringify({a:window.IFJ,b:window.IFJ_TABLA}))"
+            out = subprocess.run(["node", "-e", code, path], capture_output=True, text=True, timeout=30).stdout
+            d = json.loads(out)
+            ifj, tab = d.get("a") or {}, d.get("b") or {}
+        except Exception:
+            ifj, tab = {}, {}
+    return ifj or {}, tab or {}
+
+
+def dump_tabla(tab):
+    parts = []
+    for k, v in tab.items():
+        rows = ",\n   ".join(json.dumps(r, ensure_ascii=False) for r in v.get("rows", []))
+        meta = {x: y for x, y in v.items() if x != "rows"}
+        meta_s = ", ".join(f'{json.dumps(x)}: {json.dumps(y, ensure_ascii=False)}' for x, y in meta.items())
+        parts.append(f' {json.dumps(k)}: {{ {meta_s}, "rows": [\n   {rows}\n ]}}')
+    return "{\n" + ",\n".join(parts) + "\n}"
+
+
+def dump_ifj(ifj):
+    parts = []
+    for k, lst in ifj.items():
+        items = ",\n  ".join(json.dumps(e, ensure_ascii=False) for e in lst)
+        parts.append(f' {json.dumps(k)}: [\n  {items}\n ]')
+    return "{\n" + ",\n".join(parts) + "\n}"
+
+
+def ifj_entries(sched, old):
+    olds = {e.get("datum"): e for e in old}
+    out = []
+    for s in sched:
+        m = re.match(r"(\d{4})\.\s*(\d{2})\.\s*(\d{2})\.\s*(\d{1,2}):(\d{2})", s["datetext"] or "")
+        if not m:
+            continue
+        datum = f"{m.group(1)}.{m.group(2)}.{m.group(3)}"
+        haz = (s["home"] == OUR)
+        o = olds.get(datum, {})
+        out.append({"datum": datum, "ido": f"{int(m.group(4)):02d}:{m.group(5)}", "fordulo": s["round"] if s["round"] else "",
+                    "ellenfel": s["away"] if haz else s["home"], "hazai": haz, "eredmeny": s["result"] or "",
+                    "helyszin": s["venue"], "gollovok": o.get("gollovok", ""), "megjegyzes": o.get("megjegyzes", "")})
+    out.sort(key=lambda e: (e["datum"], e["ido"]))
+    return out
+
+
+def own_record(entries):
+    """Az U13-hoz: a Lőrinci saját mérlege a lejátszott meccsekből."""
+    m = gy = d = v = gf = ga = 0
+    forma = []
+    for e in entries:
+        mm = re.match(r"^(\d+)-(\d+)$", e["eredmeny"] or "")
+        if not mm:
+            continue
+        a, b = int(mm.group(1)), int(mm.group(2))
+        l, k = (a, b) if e["hazai"] else (b, a)
+        m += 1
+        gf += l
+        ga += k
+        if l > k:
+            gy += 1
+            forma.append("GY")
+        elif l < k:
+            v += 1
+            forma.append("V")
+        else:
+            d += 1
+            forma.append("D")
+    return [f"{OUR} U13", m, gy, d, v, f"{gf}-{ga}", gy * 3 + d, " ".join(forma[-5:])]
+
+
+def run_ifj(folder, dry=False, getter=None, log=print, force=False):
+    getter = getter or fetch
+    path = os.path.join(folder, "ifjusagi.js")
+    ifj, tab = load_ifj(path)
+    new_ifj, new_tab, changed = {}, {}, False
+    for key, cfg in YOUTH.items():
+        log(f"[{key.upper()}]")
+        start = max(1, int((tab.get(key) or {}).get("fordulo", 1) or 1))
+        best = None
+        for rnd in range(start, start + 4):
+            html = getter(ifj_club_url(cfg, rnd))
+            rows = parse_table(html) if cfg["table"] else []
+            tot = sum(r["m"] for r in rows) if rows else len([s for s in parse_schedule(html, cfg["league"]) if s["played"]])
+            log(f"  {rnd}. forduló oldala: {tot} lejátszott meccs")
+            if best is None or tot > best["tot"]:
+                best = {"rnd": rnd, "html": html, "rows": rows, "tot": tot}
+            else:
+                break
+        sched = [s for s in parse_schedule(best["html"], cfg["league"]) if OUR in (s["home"], s["away"])]
+        if not sched:
+            raise RuntimeError(f"{key}: nem találom a menetrendet az oldalon")
+        entries = ifj_entries(sched, ifj.get(key, []))
+        new_ifj[key] = entries
+        played_rounds = [e["fordulo"] for e in entries if e["eredmeny"] and isinstance(e["fordulo"], int)]
+        fordulo = max([best["rnd"]] + played_rounds)
+        if cfg["table"]:
+            if len(best["rows"]) < 4:
+                raise RuntimeError(f"{key}: a tabella nem olvasható")
+            rows = [[r["team"], r["m"], r["gy"], r["d"], r["v"], r["g"], r["p"], " ".join(r["forma"])] for r in best["rows"]]
+            new_tab[key] = {"fordulo": fordulo, "rows": rows}
+        else:
+            new_tab[key] = {"fordulo": fordulo, "nincsSorrend": True,
+                            "felirat": "Hivatalos tabella nincs – a Lőrinci mérlege", "rows": [own_record(entries)]}
+        n_played = len([e for e in entries if e["eredmeny"]])
+        log(f"  {len(entries)} meccs, ebből {n_played} lejátszott; tabella: {fordulo}. forduló")
+    if force or new_ifj != ifj or new_tab != tab:
+        text = (IFJ_HEADER + "window.IFJ = " + dump_ifj(new_ifj) + ";\n\n"
+                + "// ===== window.IFJ_TABLA – tabellák =====\n// Sor: [csapat, M, Gy, D, V, \"lőtt-kapott\", pont, \"forma (régebbitől az újabbig)\"]\n"
+                + "window.IFJ_TABLA = " + dump_tabla(new_tab) + ";\n")
+        changed = True
+        if dry:
+            log("  (dry-run: nem írok fájlt)")
+        else:
+            write(path, text)
+            log("  ifjusagi.js frissítve")
+    else:
+        log("  nincs új ifjúsági adat")
+    return changed
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--kenyszer", action="store_true")
     ap.add_argument("--mappa", default=HERE)
+    ap.add_argument("--csak", choices=["felnott", "ifjusagi"], help="csak az egyik részt frissítse")
     a = ap.parse_args()
     if requests is None:
         sys.exit("Hiányzik a 'requests' csomag: pip install requests beautifulsoup4 lxml")
-    try:
-        run(a.mappa, dry=a.dry_run, force=a.kenyszer)
-    except Exception as e:  # noqa
-        print("HIBA:", e)
-        sys.exit(1)
+    rc = 0
+    if a.csak in (None, "felnott"):
+        try:
+            print("[FELNŐTT]")
+            run(a.mappa, dry=a.dry_run, force=a.kenyszer)
+        except Exception as e:  # noqa
+            print("HIBA (felnőtt):", e)
+            rc = 1
+    if a.csak in (None, "ifjusagi"):
+        try:
+            run_ifj(a.mappa, dry=a.dry_run, force=a.kenyszer)
+        except Exception as e:  # noqa
+            print("HIBA (ifjúsági):", e)
+            rc = 1
+    sys.exit(rc)
 
 
 if __name__ == "__main__":
