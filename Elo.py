@@ -54,13 +54,16 @@ def main():
         return
     hazai, vendeg = int(m.group(1)), int(m.group(2))
 
-    # Védelem: ne írjunk vissza 0-0-ra
+    # Védelem: ne írjunk vissza 0-0-ra (pl. következő, még le nem játszott meccs)
+    # CSAK az elo.js élő eredmény írását tiltja le, NEM lép ki!
+    # Különben a Hírek / hirek.json / tabella sem frissülne soha.
+    skip_elo_write = False
     if OUT.exists():
         old = OUT.read_text(encoding="utf-8")
         om = re.search(r"hazai:\s*(\d+),\s*vendeg:\s*(\d+)", old)
         if om and hazai == 0 and vendeg == 0 and (int(om.group(1)) != 0 or int(om.group(2)) != 0):
-            print("Védelem: nem írom vissza 0-0-ra")
-            return
+            print("Védelem: nem írom vissza 0-0-ra, csak a Híreket frissítem")
+            skip_elo_write = True
 
     dm = re.search(r"(\d{4}\.\d{2}\.\d{2})\s*-\s*(\d{2}:\d{2})", html)
     datum = dm.group(1) if dm else datetime.now().strftime("%Y.%m.%d")
@@ -93,7 +96,10 @@ def main():
     history = load_json(HISTORY, [])
     # Csak akkor vesszük be, ha van dátum + eredmény, és még nincs benne ez a meccs
     key = f"{datum}|{hazai_nev}-{vendeg_nev}"
-    if not any(h.get("key") == key for h in history):
+    _is_future_unplayed = (hazai == 0 and vendeg == 0 and datum >= datetime.now().strftime("%Y.%m.%d"))
+    if _is_future_unplayed:
+        print(f"History kimarad (még le nem játszott): {key}")
+    if not _is_future_unplayed and not any(h.get("key") == key for h in history):
         # Lőrinci szempontjából: győz / vereség / döntetlen
         lorinci_hazai = "Lőrinci" in hazai_nev
         lg = hazai if lorinci_hazai else vendeg
@@ -173,6 +179,9 @@ def main():
         print("cup.json létrehozva")
 
     # --- ELO.JS ---
+    if skip_elo_write:
+        print(f"OK: elo.js nem írva felül (0-0 védelem), hirek: {len(hirek)}")
+        return
     old_code = ""
     if OUT.exists():
         old = OUT.read_text(encoding="utf-8")
