@@ -66,6 +66,16 @@ def main():
     datum = dm.group(1) if dm else datetime.now().strftime("%Y.%m.%d")
     frissitve = datetime.now(timezone(timedelta(hours=1))).strftime("%Y.%m.%d %H:%M")
 
+    # Védelem: ha az elo.js-ben már egy ÚJABB meccs van bent, ne írjuk vissza régebbire.
+    # Pl. ha a current_match.json még a régi Heréd-meccsre mutat, ez megakadályozza,
+    # hogy a 2026.11.21-i 2-2-t visszacserélje 2026.11.14-i 0-1-re.
+    if OUT.exists():
+        _old_elo = OUT.read_text(encoding="utf-8")
+        _dm = re.search(r'datum:\s*"(\d{4}\.\d{2}\.\d{2})"', _old_elo)
+        if _dm and _dm.group(1) > datum:
+            print(f"Védelem: elo.js-ben újabb meccs van ({_dm.group(1)}), nem írom vissza régebbire ({datum}). Frissítsd a data/current_match.json match_url-jét!")
+            return
+
     # Csapatnevek a title-ből: "Heréd-Kistigrisek LC - Lőrinci VSC 0 - 1"
     nm = re.search(r"^(.*?)\s*-\s*(.*?)\s+\d+\s*-\s*\d+\s*-\s*MLSZ", title)
     hazai_nev = nm.group(1).strip() if nm else "Hazai"
