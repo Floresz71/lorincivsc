@@ -1,12 +1,15 @@
 // Élő állás - automatikusan frissül MLSZ-ről (lásd elo.py).
 // Ezt a felső részt írja át az elo.py. Az alatta lévő kiíró kódot nem bántja.
 window.ELO = {
-  datum: "2026.11.14",
-  hazai: 0,
-  vendeg: 1,
-  frissitve: "2026.11.14",
+  datum: "2026.11.21",
+  hazai: 2,
+  vendeg: 2,
+  frissitve: "2026.11.21",
   golok: [
-    { perc: 64, nev: "NAGY BENCE GERGŐ", csapat: "vendeg" }
+    { perc: 11, nev: "OLÁH NORBERT", csapat: "vendeg" },
+    { perc: 30, nev: "GULYÁS KRISTÓF", csapat: "vendeg" },
+    { perc: 55, nev: "BELÁK BERTOLD", csapat: "hazai" },
+    { perc: 93, nev: "STARK JÁNOS", csapat: "hazai" }
   ]
 };
 
@@ -112,8 +115,8 @@ window.ELO = {
   // Tartalék adat: ha a data/hirek.json / Hirek.json sehol nincs meg,
   // akkor is legyen mit kirakni. Ugyanaz, mint ami a Hirek.json-ban van.
   var FALLBACK = [
-    {"datum":"2026.11.14","hazai":"Heréd-Kistigrisek LC","vendeg":"Lőrinci VSC","hazai_gol":0,"vendeg_gol":1,"golok":[{"perc":64,"nev":"NAGY BENCE GERGŐ"}],"mlsz_url":"https://adatbank.mlsz.hu/match/67/10/33860/14/2191326.html"},
-    {"datum":"2026.11.07","hazai":"FC Hatvan","vendeg":"Lőrinci VSC","hazai_gol":8,"vendeg_gol":1,"golok":[{"perc":83,"nev":"NAGY BENCE GERGŐ"}],"mlsz_url":"https://adatbank.mlsz.hu/match/67/10/33860/13/2191325.html"}
+    {"datum":"2026.11.21","hazai":"Lőrinci VSC","vendeg":"Gyöngyöshalász SE","hazai_gol":2,"vendeg_gol":2,"golok":[{"perc":11,"nev":"OLÁH NORBERT"},{"perc":30,"nev":"GULYÁS KRISTÓF"},{"perc":55,"nev":"BELÁK BERTOLD"},{"perc":93,"nev":"STARK JÁNOS"}],"mlsz_url":"https://adatbank.mlsz.hu/match/67/10/33860/15/2191332.html"},
+    {"datum":"2026.11.14","hazai":"Heréd-Kistigrisek LC","vendeg":"Lőrinci VSC","hazai_gol":0,"vendeg_gol":1,"golok":[{"perc":64,"nev":"NAGY BENCE GERGŐ"}],"mlsz_url":"https://adatbank.mlsz.hu/match/67/10/33860/14/2191326.html"}
   ];
 
   function makeHeadline(m){
