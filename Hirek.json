@@ -1,5 +1,37 @@
 [
   {
+    "key": "2026.11.21|Lőrinci VSC-Gyöngyöshalász SE",
+    "datum": "2026.11.21",
+    "hazai": "Lőrinci VSC",
+    "vendeg": "Gyöngyöshalász SE",
+    "hazai_gol": 2,
+    "vendeg_gol": 2,
+    "tipus": "DÖNTETLEN",
+    "golok": [
+      {
+        "perc": 11,
+        "nev": "OLÁH NORBERT",
+        "csapat": "vendeg"
+      },
+      {
+        "perc": 30,
+        "nev": "GULYÁS KRISTÓF",
+        "csapat": "vendeg"
+      },
+      {
+        "perc": 55,
+        "nev": "BELÁK BERTOLD",
+        "csapat": "hazai"
+      },
+      {
+        "perc": 93,
+        "nev": "STARK JÁNOS",
+        "csapat": "hazai"
+      }
+    ],
+    "mlsz_url": "https://adatbank.mlsz.hu/match/67/10/33860/15/2191332.html"
+  },
+  {
     "key": "2026.11.14|Heréd-Kistigrisek LC-Lőrinci VSC",
     "datum": "2026.11.14",
     "hazai": "Heréd-Kistigrisek LC",
@@ -7,18 +39,13 @@
     "hazai_gol": 0,
     "vendeg_gol": 1,
     "tipus": "GYŐZELEM",
-    "golok": [{ "perc": 64, "nev": "NAGY BENCE GERGŐ", "csapat": "vendeg" }],
+    "golok": [
+      {
+        "perc": 64,
+        "nev": "NAGY BENCE GERGŐ",
+        "csapat": "vendeg"
+      }
+    ],
     "mlsz_url": "https://adatbank.mlsz.hu/match/67/10/33860/14/2191326.html"
-  },
-  {
-    "key": "2026.11.07|FC Hatvan-Lőrinci VSC",
-    "datum": "2026.11.07",
-    "hazai": "FC Hatvan",
-    "vendeg": "Lőrinci VSC",
-    "hazai_gol": 8,
-    "vendeg_gol": 1,
-    "tipus": "VERESÉG",
-    "golok": [{ "perc": 83, "nev": "NAGY BENCE GERGŐ", "csapat": "vendeg" }],
-    "mlsz_url": "https://adatbank.mlsz.hu/match/67/10/33860/13/2191325.html"
   }
 ]
